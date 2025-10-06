@@ -15,18 +15,22 @@
     The agent schema name (e.g., cr3bf_technoMarketingCampaignAnalysis).
     This will be used as part of the directory name and file naming.
 
+.PARAMETER TemplateType
+    The template type to use: 'f'/'full' for full template (49 columns),
+    'a'/'abridged' for abridged template (15 columns).
+
 .EXAMPLE
-    .\create_agent_structure.ps1 -RootDirectory "C:\Projects" -SchemaName "cr3bf_technoMarketingCampaignAnalysis"
+    .\create_agent_structure.ps1 -RootDirectory "C:\Projects" -SchemaName "cr3bf_technoMarketingCampaignAnalysis" -TemplateType "f"
 
-    Creates directory: C:\Projects\cr3bf_technoMarketingCampaignAnalysis_resources
+    Creates directory with full template: C:\Projects\cr3bf_technoMarketingCampaignAnalysis_resources
 
 .EXAMPLE
-    .\create_agent_structure.ps1 -d "~/agents" -s "cr3bf_customerSupport"
+    .\create_agent_structure.ps1 -d "~/agents" -s "cr3bf_customerSupport" -t "a"
 
-    Creates directory: ~/agents/cr3bf_customerSupport_resources
+    Creates directory with abridged template: ~/agents/cr3bf_customerSupport_resources
 
 .NOTES
-    Version: 1.0
+    Version: 1.1
     Author: MCS AI Team
     Last Updated: October 2025
 
@@ -44,7 +48,12 @@ param(
 
     [Parameter(Mandatory=$true, Position=1, HelpMessage="Enter the agent schema name (alphanumeric and underscores only, no quotes)")]
     [Alias("s")]
-    [string]$SchemaName
+    [string]$SchemaName,
+
+    [Parameter(Mandatory=$true, Position=2, HelpMessage="Enter template type: 'f' or 'full' for full template, 'a' or 'abridged' for abridged template")]
+    [Alias("t")]
+    [ValidateSet("f", "full", "a", "abridged", IgnoreCase=$true)]
+    [string]$TemplateType
 )
 
 # Set strict mode for better error handling
@@ -54,6 +63,18 @@ $ErrorActionPreference = "Stop"
 # Strip quotes from parameters if they were included (common user error)
 $RootDirectory = $RootDirectory.Trim('"').Trim("'")
 $SchemaName = $SchemaName.Trim('"').Trim("'")
+$TemplateType = $TemplateType.Trim('"').Trim("'").ToLower()
+
+# Normalize template type to full names
+$templateTypeDisplay = ""
+$templateFileName = ""
+if ($TemplateType -eq "f" -or $TemplateType -eq "full") {
+    $templateTypeDisplay = "Full"
+    $templateFileName = "enhanced_template.xlsx"
+} elseif ($TemplateType -eq "a" -or $TemplateType -eq "abridged") {
+    $templateTypeDisplay = "Abridged"
+    $templateFileName = "abridged_enhanced_template.xlsx"
+}
 
 # Function to write colored output
 function Write-ColorOutput {
@@ -75,6 +96,8 @@ function Write-ColorOutput {
 Write-ColorOutput "`n========================================" -ForegroundColor Cyan
 Write-ColorOutput "MCS Agent Structure Creator" -ForegroundColor Cyan
 Write-ColorOutput "========================================`n" -ForegroundColor Cyan
+Write-ColorOutput "Template Type: $templateTypeDisplay" -ForegroundColor Magenta
+Write-Output ""
 
 # Validate root directory exists
 if (-not (Test-Path -Path $RootDirectory -PathType Container)) {
@@ -164,14 +187,14 @@ if (Test-Path -Path $readmeSrc) {
     Write-ColorOutput "  ⚠ WARNING: README.txt not found in resources directory" -ForegroundColor Yellow
 }
 
-# Copy enhanced_template.xlsx to TestQueries with renamed filename
-$templateSrc = Join-Path -Path $resourcesDir -ChildPath "enhanced_template.xlsx"
+# Copy enhanced_template.xlsx or abridged_enhanced_template.xlsx to TestQueries with renamed filename
+$templateSrc = Join-Path -Path $resourcesDir -ChildPath $templateFileName
 if (Test-Path -Path $templateSrc) {
     $templateDst = Join-Path -Path $targetPath -ChildPath "TestQueries\Excel_Queries_${SchemaName}.xlsx"
     Copy-Item -Path $templateSrc -Destination $templateDst -Force
-    Write-ColorOutput "  ✓ Copied: Excel_Queries_${SchemaName}.xlsx to TestQueries/" -ForegroundColor White
+    Write-ColorOutput "  ✓ Copied: Excel_Queries_${SchemaName}.xlsx ($templateTypeDisplay template) to TestQueries/" -ForegroundColor White
 } else {
-    Write-ColorOutput "  ⚠ WARNING: enhanced_template.xlsx not found in resources directory" -ForegroundColor Yellow
+    Write-ColorOutput "  ⚠ WARNING: $templateFileName not found in resources directory" -ForegroundColor Yellow
 }
 
 # Display completion summary
@@ -185,7 +208,7 @@ Write-ColorOutput "Directory Structure:" -ForegroundColor White
 Write-ColorOutput "  $targetDirName/" -ForegroundColor White
 Write-ColorOutput "  ├── README.txt" -ForegroundColor White
 Write-ColorOutput "  ├── TestQueries/" -ForegroundColor White
-Write-ColorOutput "  │   └── Excel_Queries_${SchemaName}.xlsx" -ForegroundColor White
+Write-ColorOutput "  │   └── Excel_Queries_${SchemaName}.xlsx ($templateTypeDisplay)" -ForegroundColor White
 Write-ColorOutput "  ├── Data/" -ForegroundColor White
 Write-ColorOutput "  │   ├── InAgent/" -ForegroundColor White
 Write-ColorOutput "  │   └── Other/" -ForegroundColor White

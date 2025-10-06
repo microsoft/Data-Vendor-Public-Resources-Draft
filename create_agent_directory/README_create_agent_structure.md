@@ -30,12 +30,12 @@ The `create_agent_structure.ps1` script creates a standardized directory structu
 ### Basic Syntax
 
 ```powershell
-.\create_agent_structure.ps1 -RootDirectory <path> -SchemaName <name>
+.\create_agent_structure.ps1 -RootDirectory <path> -SchemaName <name> -TemplateType <type>
 ```
 
 **Short form:**
 ```powershell
-.\create_agent_structure.ps1 -d <path> -s <name>
+.\create_agent_structure.ps1 -d <path> -s <name> -t <type>
 ```
 
 ### Parameters
@@ -44,56 +44,56 @@ The `create_agent_structure.ps1` script creates a standardized directory structu
 |-----------|-------|----------|-------------|
 | `-RootDirectory` | `-d` | Yes | Root directory where the structure will be created |
 | `-SchemaName` | `-s` | Yes | Agent schema name (e.g., `cr3bf_agentName`) |
+| `-TemplateType` | `-t` | Yes | Template type: `f`/`full` for full template (49 columns), `a`/`abridged` for abridged template (15 columns) |
 
 ## Examples
 
 ### Windows (PowerShell)
 
 ```powershell
-# Basic usage
-.\create_agent_structure.ps1 -RootDirectory "C:\Projects" -SchemaName "cr3bf_salesAssistant"
+# Basic usage with full template
+.\create_agent_structure.ps1 -RootDirectory "C:\Projects" -SchemaName "cr3bf_salesAssistant" -TemplateType "f"
 
-# Using short form
-.\create_agent_structure.ps1 -d "C:\Projects" -s "cr3bf_customerSupport"
+# Using short form with abridged template
+.\create_agent_structure.ps1 -d "C:\Projects" -s "cr3bf_customerSupport" -t "a"
+
+# With full template (expanded option)
+.\create_agent_structure.ps1 -d "C:\Projects" -s "cr3bf_dataAnalysis" -t "full"
+
+# With abridged template (expanded option)
+.\create_agent_structure.ps1 -d "C:\Projects" -s "cr3bf_salesAssistant" -t "abridged"
 
 # From a SharePoint synced directory
-.\create_agent_structure.ps1 -d "C:\Users\username\OneDrive\MCS-Agents" -s "cr3bf_salesAssistant"
+.\create_agent_structure.ps1 -d "C:\Users\username\OneDrive\MCS-Agents" -s "cr3bf_salesAssistant" -t "f"
 ```
 
 ### WSL/Linux
 
 ```bash
 # Navigate to script directory
-cd /home/user/projects/AI.MCS-Data-Tools/tools/xlsx_queries_template
+cd /home/user/projects/AI.MCS-Data-Tools/tools/xlsx_queries_template/create_agent_directory
 
-# Run with pwsh command
-pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssitstant"
+# Run with pwsh command - full template
+pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "f"
+
+# Run with abridged template
+pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "a"
 
 # From WSL with Windows path
-pwsh ./create_agent_structure.ps1 -d "/mnt/c/Projects" -s "cr3bf_customerSupport"
+pwsh ./create_agent_structure.ps1 -d "/mnt/c/Projects" -s "cr3bf_customerSupport" -t "full"
 ```
 
 ### macOS
 
 ```bash
 # Navigate to script directory
-cd ~/projects/AI.MCS-Data-Tools/tools/xlsx_queries_template
+cd ~/projects/AI.MCS-Data-Tools/tools/xlsx_queries_template/create_agent_directory
 
-# Run with pwsh command
-pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant"
+# Run with pwsh command - full template
+pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "f"
 
-# From WSL with Windows path
-pwsh ./create_agent_structure.ps1 -d "/mnt/c/Projects" -s "cr3bf_customerSupport"
-```
-
-### macOS
-
-```bash
-# Navigate to script directory
-cd ~/projects/AI.MCS-Data-Tools/tools/xlsx_queries_template
-
-# Run with pwsh command
-pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant"
+# Run with abridged template
+pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "abridged"
 ```
 
 ## Created Structure
@@ -129,12 +129,22 @@ cr3bf_salesAssistant_resources/
 
 ## Resource Files
 
-The script copies files from the `resources/` subdirectory:
+The script copies files from the `resources/` subdirectory based on the template type selected:
 
-| Source File | Destination | Purpose |
-|-------------|-------------|---------|
-| `resources/README.txt` | Root directory | Directory usage guidelines |
-| `resources/enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Test queries template |
+| Source File | Destination | Purpose | Template Type |
+|-------------|-------------|---------|---------------|
+| `resources/README.txt` | Root directory | Directory usage guidelines | Both |
+| `resources/enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Full test queries template (49 columns) | Full (`-t f`) |
+| `resources/abridged_enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Abridged test queries template (15 columns) | Abridged (`-t a`) |
+
+### Template Type Comparison
+
+| Feature | Full Template (`f`/`full`) | Abridged Template (`a`/`abridged`) |
+|---------|---------------------------|-----------------------------------|
+| **Columns** | 49 columns | 15 columns |
+| **Use Case** | Comprehensive testing and analysis | Quick evaluation and basic testing |
+| **Includes** | All fields: agent config, knowledge corpus details, query analysis, content structure, response evaluation, custom rubrics | Core fields: identification, custom rubrics, pass/fail scores, justifications |
+| **Best For** | Detailed documentation, full test coverage, complex agents | Rapid testing, simple agents, minimal documentation |
 
 ## Features
 
@@ -213,7 +223,23 @@ ERROR: Resources directory not found
 **Solution:**
 - Ensure you're running the script from the correct directory
 - Verify the `resources/` subdirectory exists
-- Check that `resources/README.txt` and `resources/enhanced_template.xlsx` exist
+- Check that both template files exist:
+  - `resources/README.txt`
+  - `resources/enhanced_template.xlsx`
+  - `resources/abridged_enhanced_template.xlsx`
+
+### Issue: Invalid Template Type
+
+**Error:**
+```
+Cannot validate argument on parameter 'TemplateType'
+```
+
+**Solution:**
+- Use one of the valid template type values:
+  - `f` or `full` for the full template
+  - `a` or `abridged` for the abridged template
+- Example: `-t f` or `-TemplateType "abridged"`
 
 ## Integration with MCS Workflow
 
@@ -231,11 +257,14 @@ This script is part of the MCS agent development workflow:
 AI.MCS-Data-Tools/
 └── tools/
     └── xlsx_queries_template/
-        ├── create_agent_structure.ps1       ← This script
-        ├── README_create_agent_structure.md ← This documentation
-        └── resources/
-            ├── README.txt                   ← Copied to target
-            └── enhanced_template.xlsx       ← Copied to TestQueries/
+        ├── create_agent_directory/
+        │   ├── create_agent_structure.ps1       ← This script
+        │   ├── README_create_agent_structure.md ← This documentation
+        │   └── resources/
+        │       ├── README.txt                   ← Copied to target
+        │       ├── enhanced_template.xlsx       ← Full template (49 columns)
+        │       └── abridged_enhanced_template.xlsx ← Abridged template (15 columns)
+        └── create_enhanced_template.py          ← Generates both templates
 ```
 
 ## Version History
