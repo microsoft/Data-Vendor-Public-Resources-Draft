@@ -70,10 +70,10 @@ $templateTypeDisplay = ""
 $templateFileName = ""
 if ($TemplateType -eq "f" -or $TemplateType -eq "full") {
     $templateTypeDisplay = "Full"
-    $templateFileName = "enhanced_template.xlsx"
+    $templateFileName = "enhanced_template.xlsm"
 } elseif ($TemplateType -eq "a" -or $TemplateType -eq "abridged") {
     $templateTypeDisplay = "Abridged"
-    $templateFileName = "abridged_enhanced_template.xlsx"
+    $templateFileName = "abridged_enhanced_template.xlsm"
 }
 
 # Function to write colored output
@@ -187,12 +187,12 @@ if (Test-Path -Path $readmeSrc) {
     Write-ColorOutput "  ⚠ WARNING: README.txt not found in resources directory" -ForegroundColor Yellow
 }
 
-# Copy enhanced_template.xlsx or abridged_enhanced_template.xlsx to TestQueries with renamed filename
+# Copy enhanced_template.xlsm or abridged_enhanced_template.xlsm to TestQueries with renamed filename
 $templateSrc = Join-Path -Path $resourcesDir -ChildPath $templateFileName
 if (Test-Path -Path $templateSrc) {
-    $templateDst = Join-Path -Path $targetPath -ChildPath "TestQueries\Excel_Queries_${SchemaName}.xlsx"
+    $templateDst = Join-Path -Path $targetPath -ChildPath "TestQueries\Excel_Queries_${SchemaName}.xlsm"
     Copy-Item -Path $templateSrc -Destination $templateDst -Force
-    Write-ColorOutput "  ✓ Copied: Excel_Queries_${SchemaName}.xlsx ($templateTypeDisplay template) to TestQueries/" -ForegroundColor White
+    Write-ColorOutput "  ✓ Copied: Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay template) to TestQueries/" -ForegroundColor White
 } else {
     Write-ColorOutput "  ⚠ WARNING: $templateFileName not found in resources directory" -ForegroundColor Yellow
 }
@@ -208,7 +208,7 @@ Write-ColorOutput "Directory Structure:" -ForegroundColor White
 Write-ColorOutput "  $targetDirName/" -ForegroundColor White
 Write-ColorOutput "  ├── README.txt" -ForegroundColor White
 Write-ColorOutput "  ├── TestQueries/" -ForegroundColor White
-Write-ColorOutput "  │   └── Excel_Queries_${SchemaName}.xlsx ($templateTypeDisplay)" -ForegroundColor White
+Write-ColorOutput "  │   └── Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay)" -ForegroundColor White
 Write-ColorOutput "  ├── Data/" -ForegroundColor White
 Write-ColorOutput "  │   ├── InAgent/" -ForegroundColor White
 Write-ColorOutput "  │   └── Other/" -ForegroundColor White
@@ -217,7 +217,7 @@ Write-ColorOutput "  └── ExportedSolutions/" -ForegroundColor White
 
 Write-ColorOutput "`nNext Steps:" -ForegroundColor Cyan
 Write-ColorOutput "  1. Review README.txt for directory usage guidelines" -ForegroundColor White
-Write-ColorOutput "  2. Fill out Excel_Queries_${SchemaName}.xlsx with test queries" -ForegroundColor White
+Write-ColorOutput "  2. Fill out Excel_Queries_${SchemaName}.xlsm with test queries" -ForegroundColor White
 Write-ColorOutput "  3. Add knowledge base files to Data/InAgent/" -ForegroundColor White
 Write-ColorOutput "  4. Document agent design in DesignDocumentation/" -ForegroundColor White
 Write-ColorOutput "  5. Export solution from Copilot Studio to ExportedSolutions/`n" -ForegroundColor White
