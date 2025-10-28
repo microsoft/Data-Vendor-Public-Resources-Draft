@@ -99,13 +99,19 @@ Write-ColorOutput "========================================`n" -ForegroundColor 
 Write-ColorOutput "Template Type: $templateTypeDisplay" -ForegroundColor Magenta
 Write-Output ""
 
-# Validate root directory exists
+# Create root directory if it doesn't exist
 if (-not (Test-Path -Path $RootDirectory -PathType Container)) {
-    Write-ColorOutput "ERROR: Root directory does not exist: $RootDirectory" -ForegroundColor Red
-    Write-ColorOutput "Please create the directory first or provide a valid path." -ForegroundColor Yellow
-    Write-ColorOutput "`nNote: When prompted interactively, enter paths WITHOUT quotes." -ForegroundColor Cyan
-    Write-ColorOutput "Example: C:\Users\username\Documents (not `"C:\Users\username\Documents`")" -ForegroundColor White
-    exit 1
+    Write-ColorOutput "Root directory does not exist: $RootDirectory" -ForegroundColor Yellow
+    Write-ColorOutput "Creating root directory..." -ForegroundColor Green
+    try {
+        New-Item -Path $RootDirectory -ItemType Directory -Force | Out-Null
+        Write-ColorOutput "[OK] Created root directory: $RootDirectory`n" -ForegroundColor White
+    } catch {
+        Write-ColorOutput "`nERROR: Failed to create root directory: $RootDirectory" -ForegroundColor Red
+        Write-ColorOutput "Error details: $_" -ForegroundColor Red
+        Write-ColorOutput "`nPlease check the path and permissions." -ForegroundColor Yellow
+        exit 1
+    }
 }
 
 # Validate schema name format - must be alphanumeric and underscores only
@@ -162,7 +168,7 @@ Write-ColorOutput "`nCreating subdirectories:" -ForegroundColor Green
 foreach ($subdir in $subdirectories) {
     $subdirPath = Join-Path -Path $targetPath -ChildPath $subdir
     New-Item -Path $subdirPath -ItemType Directory -Force | Out-Null
-    Write-ColorOutput "  ✓ Created: $subdir" -ForegroundColor White
+    Write-ColorOutput "  [OK] Created: $subdir" -ForegroundColor White
 }
 
 # Get script directory and resources path
@@ -182,9 +188,9 @@ $readmeSrc = Join-Path -Path $resourcesDir -ChildPath "README.txt"
 if (Test-Path -Path $readmeSrc) {
     $readmeDst = Join-Path -Path $targetPath -ChildPath "README.txt"
     Copy-Item -Path $readmeSrc -Destination $readmeDst -Force
-    Write-ColorOutput "  ✓ Copied: README.txt" -ForegroundColor White
+    Write-ColorOutput "  [OK] Copied: README.txt" -ForegroundColor White
 } else {
-    Write-ColorOutput "  ⚠ WARNING: README.txt not found in resources directory" -ForegroundColor Yellow
+    Write-ColorOutput "  [WARNING]: README.txt not found in resources directory" -ForegroundColor Yellow
 }
 
 # Copy enhanced_template.xlsm or abridged_enhanced_template.xlsm to TestQueries with renamed filename
@@ -192,9 +198,9 @@ $templateSrc = Join-Path -Path $resourcesDir -ChildPath $templateFileName
 if (Test-Path -Path $templateSrc) {
     $templateDst = Join-Path -Path $targetPath -ChildPath "TestQueries\Excel_Queries_${SchemaName}.xlsm"
     Copy-Item -Path $templateSrc -Destination $templateDst -Force
-    Write-ColorOutput "  ✓ Copied: Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay template) to TestQueries/" -ForegroundColor White
+    Write-ColorOutput "  [OK] Copied: Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay template) to TestQueries/" -ForegroundColor White
 } else {
-    Write-ColorOutput "  ⚠ WARNING: $templateFileName not found in resources directory" -ForegroundColor Yellow
+    Write-ColorOutput "  [WARNING]: $templateFileName not found in resources directory" -ForegroundColor Yellow
 }
 
 # Display completion summary
@@ -206,14 +212,14 @@ Write-ColorOutput "Target Directory: $targetPath`n" -ForegroundColor White
 
 Write-ColorOutput "Directory Structure:" -ForegroundColor White
 Write-ColorOutput "  $targetDirName/" -ForegroundColor White
-Write-ColorOutput "  ├── README.txt" -ForegroundColor White
-Write-ColorOutput "  ├── TestQueries/" -ForegroundColor White
-Write-ColorOutput "  │   └── Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay)" -ForegroundColor White
-Write-ColorOutput "  ├── Data/" -ForegroundColor White
-Write-ColorOutput "  │   ├── InAgent/" -ForegroundColor White
-Write-ColorOutput "  │   └── Other/" -ForegroundColor White
-Write-ColorOutput "  ├── DesignDocumentation/" -ForegroundColor White
-Write-ColorOutput "  └── ExportedSolutions/" -ForegroundColor White
+Write-ColorOutput "  |-- README.txt" -ForegroundColor White
+Write-ColorOutput "  |-- TestQueries/" -ForegroundColor White
+Write-ColorOutput "  |   +-- Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay)" -ForegroundColor White
+Write-ColorOutput "  |-- Data/" -ForegroundColor White
+Write-ColorOutput "  |   |-- InAgent/" -ForegroundColor White
+Write-ColorOutput "  |   +-- Other/" -ForegroundColor White
+Write-ColorOutput "  |-- DesignDocumentation/" -ForegroundColor White
+Write-ColorOutput "  +-- ExportedSolutions/" -ForegroundColor White
 
 Write-ColorOutput "`nNext Steps:" -ForegroundColor Cyan
 Write-ColorOutput "  1. Review README.txt for directory usage guidelines" -ForegroundColor White
