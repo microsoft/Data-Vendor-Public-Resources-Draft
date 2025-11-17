@@ -102,7 +102,7 @@ The script creates the following directory structure:
 
 ```
 <schema_name>_resources/
-├── README.txt                                      # Directory usage guidelines
+├── README.md                                      # Directory usage guidelines
 ├── TestQueries/
 │   └── Excel_Queries_<schema_name>.xlsx          # Test queries template
 ├── Data/
@@ -117,7 +117,7 @@ The script creates the following directory structure:
 For schema name `cr3bf_salesAssistant`, the created structure will be:
 ```
 cr3bf_salesAssistant_resources/
-├── README.txt
+├── README.md
 ├── TestQueries/
 │   └── Excel_Queries_cr3bf_salesAssistant.xlsx
 ├── Data/
@@ -133,7 +133,7 @@ The script copies files from the `resources/` subdirectory based on the template
 
 | Source File | Destination | Purpose | Template Type |
 |-------------|-------------|---------|---------------|
-| `resources/README.txt` | Root directory | Directory usage guidelines | Both |
+| `resources/README.md` | Root directory | Directory usage guidelines | Both |
 | `resources/enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Full test queries template (49 columns) | Full (`-t f`) |
 | `resources/abridged_enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Abridged test queries template (15 columns) | Abridged (`-t a`) |
 
@@ -224,7 +224,7 @@ ERROR: Resources directory not found
 - Ensure you're running the script from the correct directory
 - Verify the `resources/` subdirectory exists
 - Check that both template files exist:
-  - `resources/README.txt`
+  - `resources/README.md`
   - `resources/enhanced_template.xlsx`
   - `resources/abridged_enhanced_template.xlsx`
 
@@ -261,7 +261,7 @@ AI.MCS-Data-Tools/
         │   ├── create_agent_structure.ps1       ← This script
         │   ├── README_create_agent_structure.md ← This documentation
         │   └── resources/
-        │       ├── README.txt                   ← Copied to target
+        │       ├── README.md                   ← Copied to target
         │       ├── enhanced_template.xlsx       ← Full template (49 columns)
         │       └── abridged_enhanced_template.xlsx ← Abridged template (15 columns)
         └── create_enhanced_template.py          ← Generates both templates
