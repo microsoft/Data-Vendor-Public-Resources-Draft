@@ -45,6 +45,7 @@ The `create_agent_structure.ps1` script creates a standardized directory structu
 | `-RootDirectory` | `-d` | Yes | Root directory where the structure will be created |
 | `-SchemaName` | `-s` | Yes | Agent schema name (e.g., `cr3bf_agentName`) |
 | `-TemplateType` | `-t` | Yes | Template type: `f`/`full` for full template (49 columns), `a`/`abridged` for abridged template (15 columns) |
+| `-UpdateTemplateOnly` | `-u` | No | Copy only the updated template to existing directory without overwriting data |
 
 ## Examples
 
@@ -65,6 +66,9 @@ The `create_agent_structure.ps1` script creates a standardized directory structu
 
 # From a SharePoint synced directory
 .\create_agent_structure.ps1 -d "C:\Users\username\OneDrive\MCS-Agents" -s "cr3bf_salesAssistant" -t "f"
+
+# Update template only (preserves existing data)
+.\create_agent_structure.ps1 -d "C:\Projects" -s "cr3bf_salesAssistant" -t "f" -UpdateTemplateOnly
 ```
 
 ### WSL/Linux
@@ -81,6 +85,9 @@ pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "a"
 
 # From WSL with Windows path
 pwsh ./create_agent_structure.ps1 -d "/mnt/c/Projects" -s "cr3bf_customerSupport" -t "full"
+
+# Update template only (preserves existing data)
+pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "f" -u
 ```
 
 ### macOS
@@ -94,7 +101,42 @@ pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "f"
 
 # Run with abridged template
 pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "abridged"
+
+# Update template only (preserves existing data)
+pwsh ./create_agent_structure.ps1 -d "~/agents" -s "cr3bf_salesAssistant" -t "f" -UpdateTemplateOnly
 ```
+
+## Re-Running on Existing Directory
+
+If you run the script on a directory that already exists, you'll be prompted with three options:
+
+**`[o] Overwrite`** - Move existing directory to backup and create fresh structure
+- Existing directory is renamed to `<directory>_DELETED_<timestamp>` (e.g., `cr3bf_salesAssistant_resources_DELETED_20251119_1430`)
+- All files are preserved in the backup
+- Completely new structure is created from scratch
+- Requires typing "yes" to confirm
+
+**`[u] Update`** - Copy updated template only (preserves existing data)
+- Creates new template file with timestamp: `Excel_Queries_<schema>_updated_<timestamp>.xlsm`
+- Original data file remains untouched
+- You can manually copy data from old to new file
+- Recommended when template structure has changed
+
+**`[c] Cancel`** - Exit without making any changes
+
+### Update Template Workflow
+
+When using the update option (either `-UpdateTemplateOnly` flag or choosing `[u]` when prompted):
+
+1. Script creates: `Excel_Queries_<schema>_updated_20251119_143022.xlsm`
+2. Open both files side-by-side:
+   - OLD: `Excel_Queries_<schema>.xlsm` (your existing data)
+   - NEW: `Excel_Queries_<schema>_updated_20251119_143022.xlsm` (updated template)
+3. Copy all data from old to new file
+4. Verify data transferred correctly (especially check if the number and naming of columns changed!)
+5. Rename old file to `Excel_Queries_<schema>_backup.xlsm`
+6. Rename new file to `Excel_Queries_<schema>.xlsm`
+7. Continue working with the updated template
 
 ## Created Structure
 
@@ -134,14 +176,14 @@ The script copies files from the `resources/` subdirectory based on the template
 | Source File | Destination | Purpose | Template Type |
 |-------------|-------------|---------|---------------|
 | `resources/README.md` | Root directory | Directory usage guidelines | Both |
-| `resources/enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Full test queries template (49 columns) | Full (`-t f`) |
-| `resources/abridged_enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Abridged test queries template (15 columns) | Abridged (`-t a`) |
+| `resources/enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Full test queries template (all columns) | Full (`-t f`) |
+| `resources/abridged_enhanced_template.xlsx` | `TestQueries/Excel_Queries_<schema>.xlsx` | Abridged test queries template (reduced number of columns - used for ThinkingBox) | Abridged (`-t a`) |
 
 ### Template Type Comparison
 
 | Feature | Full Template (`f`/`full`) | Abridged Template (`a`/`abridged`) |
 |---------|---------------------------|-----------------------------------|
-| **Columns** | 49 columns | 15 columns |
+| **Columns** | All columns | Reduced number of columns |
 | **Use Case** | Comprehensive testing and analysis | Quick evaluation and basic testing |
 | **Includes** | All fields: agent config, knowledge corpus details, query analysis, content structure, response evaluation, custom rubrics | Core fields: identification, custom rubrics, pass/fail scores, justifications |
 | **Best For** | Detailed documentation, full test coverage, complex agents | Rapid testing, simple agents, minimal documentation |
@@ -261,9 +303,9 @@ AI.MCS-Data-Tools/
         │   ├── create_agent_structure.ps1       ← This script
         │   ├── README_create_agent_structure.md ← This documentation
         │   └── resources/
-        │       ├── README.md                   ← Copied to target
-        │       ├── enhanced_template.xlsx       ← Full template (49 columns)
-        │       └── abridged_enhanced_template.xlsx ← Abridged template (15 columns)
+        │       ├── README.md                    ← Copied to target
+        │       ├── enhanced_template.xlsm       ← Full template (all columns)
+        │       └── abridged_enhanced_template.xlsm ← Abridged template (reduced number of columns)
         └── create_enhanced_template.py          ← Generates both templates
 ```
 
@@ -272,8 +314,9 @@ AI.MCS-Data-Tools/
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | October 2025 | Initial release with cross-platform support |
+| 1.1 | November 2025 | Added `-UpdateTemplateOnly` parameter, improved overwrite handling with backup rename |
 
 ## Support
 
 For questions or issues:
-- Check the main repository README for tool documentation
+- Check the main repository README for the Excel template and agent resources directory generation tool documentation

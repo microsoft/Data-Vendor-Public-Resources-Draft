@@ -7,6 +7,13 @@
     including subdirectories for test queries, data files, documentation, and solutions.
     It also copies template files from the resources directory.
 
+    If the target directory already exists, the script offers three options:
+    - Overwrite: Remove existing directory and create fresh structure
+    - Update: Copy only the updated template with timestamp (preserves existing data)
+    - Cancel: Exit without changes
+
+    Use -UpdateTemplateOnly switch to directly copy an updated template without prompting.
+
 .PARAMETER RootDirectory
     The root directory where the agent structure will be created.
     Must be an existing directory.
@@ -28,6 +35,13 @@
     .\create_agent_structure.ps1 -d "~/agents" -s "cr3bf_customerSupport" -t "a"
 
     Creates directory with abridged template: ~/agents/cr3bf_customerSupport_resources
+
+.EXAMPLE
+    .\create_agent_structure.ps1 -d "~/agents" -s "cr3bf_customerSupport" -t "f" -UpdateTemplateOnly
+
+    Copies updated full template to existing directory with timestamp:
+    Excel_Queries_cr3bf_customerSupport_updated_20251118_143022.xlsm
+    User can then copy data from old to new file.
 
 .NOTES
     Version: 1.1
@@ -53,7 +67,11 @@ param(
     [Parameter(Mandatory=$true, Position=2, HelpMessage="Enter template type: 'f' or 'full' for full template, 'a' or 'abridged' for abridged template")]
     [Alias("t")]
     [ValidateSet("f", "full", "a", "abridged", IgnoreCase=$true)]
-    [string]$TemplateType
+    [string]$TemplateType,
+
+    [Parameter(Mandatory=$false, HelpMessage="Only copy updated template to existing directory (does not overwrite existing data file)")]
+    [Alias("u")]
+    [switch]$UpdateTemplateOnly
 )
 
 # Set strict mode for better error handling
@@ -138,16 +156,125 @@ if ($SchemaName -notmatch '^[a-zA-Z0-9_]+$') {
 $targetDirName = "${SchemaName}_resources"
 $targetPath = Join-Path -Path $RootDirectory -ChildPath $targetDirName
 
+# Handle update template only mode
+if ($UpdateTemplateOnly) {
+    Write-ColorOutput "`nUpdate Template Only Mode" -ForegroundColor Cyan
+    Write-ColorOutput "========================================`n" -ForegroundColor Cyan
+
+    # Check if target directory exists
+    if (-not (Test-Path -Path $targetPath)) {
+        Write-ColorOutput "ERROR: Target directory does not exist: $targetPath" -ForegroundColor Red
+        Write-ColorOutput "Cannot update template in non-existent directory." -ForegroundColor Yellow
+        Write-ColorOutput "Run without -UpdateTemplateOnly to create the directory structure first." -ForegroundColor Yellow
+        exit 1
+    }
+
+    # Get script directory and resources path
+    $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $resourcesDir = Join-Path -Path $scriptDir -ChildPath "resources"
+
+    # Validate resources directory exists
+    if (-not (Test-Path -Path $resourcesDir -PathType Container)) {
+        Write-ColorOutput "ERROR: Resources directory not found: $resourcesDir" -ForegroundColor Red
+        Write-ColorOutput "Please ensure the 'resources' subdirectory exists in the script directory." -ForegroundColor Yellow
+        exit 1
+    }
+
+    # Get current date for timestamp
+    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+
+    # Copy template with timestamp
+    $templateSrc = Join-Path -Path $resourcesDir -ChildPath $templateFileName
+    if (Test-Path -Path $templateSrc) {
+        $templateDst = Join-Path -Path $targetPath -ChildPath "TestQueries\Excel_Queries_${SchemaName}_updated_${timestamp}.xlsm"
+        Copy-Item -Path $templateSrc -Destination $templateDst -Force
+        Write-ColorOutput "[OK] Copied updated template to:" -ForegroundColor Green
+        Write-ColorOutput "    $templateDst`n" -ForegroundColor White
+
+        Write-ColorOutput "Next Steps:" -ForegroundColor Cyan
+        Write-ColorOutput "  1. Open the NEW file: Excel_Queries_${SchemaName}_updated_${timestamp}.xlsm" -ForegroundColor White
+        Write-ColorOutput "  2. Open the OLD file: Excel_Queries_${SchemaName}.xlsm" -ForegroundColor White
+        Write-ColorOutput "  3. Copy all data from old to new file" -ForegroundColor White
+        Write-ColorOutput "  4. Verify data transferred correctly" -ForegroundColor White
+        Write-ColorOutput "  5. Save the new file and rename old file as backup (add _backup suffix)" -ForegroundColor White
+        Write-ColorOutput "  6. Rename new file to Excel_Queries_${SchemaName}.xlsm`n" -ForegroundColor White
+    } else {
+        Write-ColorOutput "ERROR: Template file not found: $templateSrc" -ForegroundColor Red
+        exit 1
+    }
+
+    Write-ColorOutput "========================================`n" -ForegroundColor Cyan
+    exit 0
+}
+
 # Check if target directory already exists
 if (Test-Path -Path $targetPath) {
     Write-ColorOutput "WARNING: Target directory already exists: $targetPath" -ForegroundColor Yellow
-    $overwrite = Read-Host "Overwrite existing directory? (y/n)"
-    if ($overwrite -ne 'y') {
-        Write-ColorOutput "Operation cancelled." -ForegroundColor Yellow
+    Write-Output ""
+    Write-ColorOutput "Options:" -ForegroundColor Cyan
+    Write-ColorOutput "  [o] Overwrite - Move existing to backup and create fresh structure" -ForegroundColor White
+    Write-ColorOutput "  [u] Update - Copy updated template only (preserves existing data)" -ForegroundColor White
+    Write-ColorOutput "  [c] Cancel - Exit without making changes" -ForegroundColor White
+    Write-Output ""
+    $choice = Read-Host "Choose an option (o/u/c)"
+
+    if ($choice -eq 'u') {
+        Write-ColorOutput "`nSwitching to Update Template Only mode..." -ForegroundColor Cyan
+        $UpdateTemplateOnly = $true
+
+        # Get script directory and resources path
+        $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+        $resourcesDir = Join-Path -Path $scriptDir -ChildPath "resources"
+
+        # Get current date for timestamp
+        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+
+        # Copy template with timestamp
+        $templateSrc = Join-Path -Path $resourcesDir -ChildPath $templateFileName
+        if (Test-Path -Path $templateSrc) {
+            $templateDst = Join-Path -Path $targetPath -ChildPath "TestQueries\Excel_Queries_${SchemaName}_updated_${timestamp}.xlsm"
+            Copy-Item -Path $templateSrc -Destination $templateDst -Force
+            Write-ColorOutput "`n[OK] Copied updated template to:" -ForegroundColor Green
+            Write-ColorOutput "    $templateDst`n" -ForegroundColor White
+
+            Write-ColorOutput "Next Steps:" -ForegroundColor Cyan
+            Write-ColorOutput "  1. Open the NEW file: Excel_Queries_${SchemaName}_updated_${timestamp}.xlsm" -ForegroundColor White
+            Write-ColorOutput "  2. Open the OLD file: Excel_Queries_${SchemaName}.xlsm" -ForegroundColor White
+            Write-ColorOutput "  3. Copy all data from old to new file" -ForegroundColor White
+            Write-ColorOutput "  4. Verify data transferred correctly" -ForegroundColor White
+            Write-ColorOutput "  5. Save the new file and rename old file as backup (add _backup suffix)" -ForegroundColor White
+            Write-ColorOutput "  6. Rename new file to Excel_Queries_${SchemaName}.xlsm`n" -ForegroundColor White
+        } else {
+            Write-ColorOutput "ERROR: Template file not found: $templateSrc" -ForegroundColor Red
+            exit 1
+        }
+
+        Write-ColorOutput "========================================`n" -ForegroundColor Cyan
         exit 0
     }
-    Write-ColorOutput "Removing existing directory..." -ForegroundColor Yellow
-    Remove-Item -Path $targetPath -Recurse -Force
+    elseif ($choice -eq 'o') {
+        Write-ColorOutput "`n!!! WARNING !!!" -ForegroundColor Red
+        Write-ColorOutput "This will move the existing directory to a backup location:" -ForegroundColor Yellow
+        Write-ColorOutput "  ${targetPath} -> ${targetPath}_DELETED_<timestamp>" -ForegroundColor White
+        Write-ColorOutput "A completely new directory structure will be created from scratch." -ForegroundColor Yellow
+        Write-ColorOutput "All existing files will be preserved in the backup directory.`n" -ForegroundColor White
+        $confirmOverwrite = Read-Host "Are you sure you want to proceed? (yes/no)"
+
+        if ($confirmOverwrite -eq 'yes') {
+            $timestamp = Get-Date -Format "yyyyMMdd_HHmm"
+            $backupPath = "${targetPath}_DELETED_${timestamp}"
+            Write-ColorOutput "`nMoving existing directory to backup..." -ForegroundColor Yellow
+            Move-Item -Path $targetPath -Destination $backupPath -Force
+            Write-ColorOutput "[OK] Backup created at: $backupPath" -ForegroundColor Green
+        } else {
+            Write-ColorOutput "`nOperation cancelled." -ForegroundColor Yellow
+            exit 0
+        }
+    }
+    else {
+        Write-ColorOutput "`nOperation cancelled." -ForegroundColor Yellow
+        exit 0
+    }
 }
 
 # Define directory structure
