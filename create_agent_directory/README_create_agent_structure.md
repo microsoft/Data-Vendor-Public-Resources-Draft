@@ -184,33 +184,8 @@ The script copies files from the `resources/` subdirectory based on the template
 | Feature | Full Template (`f`/`full`) | Abridged Template (`a`/`abridged`) |
 |---------|---------------------------|-----------------------------------|
 | **Columns** | All columns | Reduced number of columns |
-| **Use Case** | Comprehensive testing and analysis | Quick evaluation and basic testing |
+| **Use Case** | MCS testing and analysis | ThinkingBox evaluation |
 | **Includes** | All fields: agent config, knowledge corpus details, query analysis, content structure, response evaluation, custom rubrics | Core fields: identification, custom rubrics, pass/fail scores, justifications |
-| **Best For** | Detailed documentation, full test coverage, complex agents | Rapid testing, simple agents, minimal documentation |
-
-## Features
-
-### ✅ Cross-Platform Compatibility
-- Works on Windows (PowerShell 5.1+)
-- Works on WSL/Linux (PowerShell Core 7+)
-- Works on macOS (PowerShell Core 7+)
-
-### ✅ Safety Features
-- Validates root directory exists before creating structure
-- Warns if target directory already exists
-- Validates schema name format
-- Provides clear error messages
-
-### ✅ User-Friendly
-- Colored console output for better readability
-- Detailed progress messages
-- Clear completion summary with next steps
-- Short parameter aliases (`-d`, `-s`)
-
-### ✅ SharePoint Compatible
-- Works with OneDrive/SharePoint synced directories
-- Handles long paths correctly
-- No special characters in generated directory names
 
 ## Troubleshooting
 
