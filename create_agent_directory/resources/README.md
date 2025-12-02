@@ -19,7 +19,10 @@ Place PDF, DOCX, XLSX, and other knowledge files here that you used to directly 
 ### `Data/Other/`
 Storage for supplementary data files and resources.
 
-Use this for data files that don't go into the agent directly. You can create sub-directories with sets of data. Keep directory names short, ideally without spaces or special characters like ampersand.
+> Use this for data files that don't go into the agent directly.
+You can create sub-directories with sets of data - and use these sub-directories as SharePoint pointers in your agent.
+
+> Keep directory names short, ideally without spaces or special characters like ampersand.
 
 ### `DesignDocumentation/`
 Documentation for agent design, architecture, and requirements.
@@ -31,7 +34,9 @@ Storage for exported MCS solution files.
 
 Save solution exports (.zip files) from Copilot Studio here.
 
+
 ---
+
 
 ## 🔧 Excel Template Macro Functionality
 
@@ -82,6 +87,64 @@ Control when validation runs by **double-clicking cell A1**:
 - ✅ Excel behaves normally - no automatic validation
 - ✅ CTRL+Z (undo) works normally
 - ✅ **Recommended for:** bulk data entry, copy/paste operations, or initial data setup
+
+---
+
+## 📥📤 Import/Export Functionality
+
+The template includes built-in import/export features accessible from column A:
+
+### 📥 Import Data (Cell A2)
+**Double-click cell A2** (light blue) to import data from another `.xlsm` template:
+
+- **File Picker**: Opens a dialog to select source template file
+- **Column Validation**: Verifies that source and target have matching column headers
+- **Confirmation Dialog**: Shows import summary and asks for confirmation
+  - Displays number of rows to import
+  - Shows column headers that will be imported
+  - Warns that existing data will be deleted
+- **Data Transfer**: Automatically copies all data from source (starting at B2)
+  - Preserves all formatting and values
+  - Clears existing data before import
+  - Maintains header row and column A controls
+
+**Use Cases:**
+- Transfer data from old template to new template after updates
+- Consolidate data from multiple sources
+- Migrate data when template structure changes (if headers match)
+
+### 📤 Export Data (Cell A3)
+**Double-click cell A3** (light green) to create timestamped backups:
+
+Creates **two files** with timestamp format `YYYYMMDD_HHMM`:
+1. **Excel format**: `<filename>_YYYYMMDD_HHMM.xlsx` (standard Excel workbook)
+2. **TSV format**: `<filename>_YYYYMMDD_HHMM.tsv` (tab-separated values, UTF-8 encoded)
+
+**Excel Export Features:**
+- Copies all data starting from B1 (headers + data)
+- Preserves column widths from original template
+- Maintains wrap text settings
+- Saves as standard `.xlsx` file (no macros)
+
+**TSV Export Features:**
+- RFC 4180 compliant formatting
+- Properly quotes fields containing line breaks, tabs, or special characters
+- UTF-8 encoding for international characters
+- Compatible with Python pandas, R, and other data tools
+
+**Use Cases:**
+- Create timestamped backups before major edits
+- Export data for analysis in Python/R
+- Share data in plain text format (TSV)
+- Archive versions at project milestones
+
+### Visual Indicators
+
+| Cell | Color | Action | Description |
+|------|-------|--------|-------------|
+| **A1** | Orange/Green | Toggle validation | Turn validation ON/OFF |
+| **A2** | Light Blue | Import data | Load data from another template |
+| **A3** | Light Green | Export data | Create timestamped backup (Excel + TSV) |
 
 ---
 

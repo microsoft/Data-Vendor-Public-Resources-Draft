@@ -129,14 +129,23 @@ If you run the script on a directory that already exists, you'll be prompted wit
 When using the update option (either `-UpdateTemplateOnly` flag or choosing `[u]` when prompted):
 
 1. Script creates: `Excel_Queries_<schema>_updated_20251119_143022.xlsm`
-2. Open both files side-by-side:
-   - OLD: `Excel_Queries_<schema>.xlsm` (your existing data)
-   - NEW: `Excel_Queries_<schema>_updated_20251119_143022.xlsm` (updated template)
-3. Copy all data from old to new file
+2. Open the new template file: `Excel_Queries_<schema>_updated_20251119_143022.xlsm`
+3. **Use built-in import feature** to transfer data:
+   - Double-click cell **A2** ("Import data from other Excel *.xlsm template")
+   - Select your old file: `Excel_Queries_<schema>.xlsm`
+   - Confirm the import when prompted
+   - The template will validate column headers and copy all data automatically
 4. Verify data transferred correctly (especially check if the number and naming of columns changed!)
 5. Rename old file to `Excel_Queries_<schema>_backup.xlsm`
 6. Rename new file to `Excel_Queries_<schema>.xlsm`
 7. Continue working with the updated template
+
+**Alternative Manual Method** (if import feature is not available):
+1. Open both files side-by-side:
+   - OLD: `Excel_Queries_<schema>.xlsm` (your existing data)
+   - NEW: `Excel_Queries_<schema>_updated_20251119_143022.xlsm` (updated template)
+2. Manually copy all data from old to new file
+3. Follow steps 4-7 above
 
 ## Created Structure
 
@@ -186,6 +195,36 @@ The script copies files from the `resources/` subdirectory based on the template
 | **Columns** | All columns | Reduced number of columns |
 | **Use Case** | MCS testing and analysis | ThinkingBox evaluation |
 | **Includes** | All fields: agent config, knowledge corpus details, query analysis, content structure, response evaluation, custom rubrics | Core fields: identification, custom rubrics, pass/fail scores, justifications |
+
+## 📥📤 Template Import/Export Features
+
+Both template types include built-in import/export functionality:
+
+### Import Data (Cell A2)
+
+**Double-click cell A2** to import data from another `.xlsm` template:
+- Opens file picker to select source template
+- Validates column headers match between source and destination
+- Shows confirmation dialog with import summary
+- Automatically transfers all data while preserving formatting
+- Use this when updating to a new template version
+
+### Export Data (Cell A3)
+
+**Double-click cell A3** to create timestamped backups:
+- Creates two files: `.xlsx` (Excel) and `.tsv` (tab-separated)
+- Timestamp format: `YYYYMMDD_HHMM`
+- Excel export preserves column widths and wrap text settings
+- TSV export uses UTF-8 encoding with proper quoting for special characters
+- Use this to create backups or export data for analysis
+
+**Example Files Created:**
+```
+Excel_Queries_cr3bf_salesAssistant_20251202_1430.xlsx
+Excel_Queries_cr3bf_salesAssistant_20251202_1430.tsv
+```
+
+For more details on import/export functionality, see the main [README.md](../README.md#-importexport-features).
 
 ## Troubleshooting
 
