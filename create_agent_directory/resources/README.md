@@ -34,6 +34,17 @@ Storage for exported MCS solution files.
 
 Save solution exports (.zip files) from Copilot Studio here.
 
+### `DevExchange/`
+Temporary file sharing between development team and MSFT.
+
+Use this directory to share delivery versions and files that need review:
+- Excel data entry sheets for MSFT review
+- Temporary exports for stakeholder feedback
+- Draft documents requiring approval
+- Files to be reviewed before moving to final locations
+
+> **Note:** This is a temporary exchange folder. Once files are reviewed and approved, move them to their appropriate permanent locations (e.g., Data/, DesignDocumentation/).
+
 
 ---
 
@@ -204,6 +215,8 @@ The macros enforce the following validation rules:
 3. **Document your agent design** in `DesignDocumentation/`
 
 4. **Export your solution**: As soon as the agent development is in a stage that can be shared, export your solution from Copilot Studio to `ExportedSolutions/`
+
+5. **Use `DevExchange/` for file sharing**: Place files here that need MSFT review (e.g., data entry sheets, draft documents)
 
 ---
 

@@ -283,7 +283,8 @@ $subdirectories = @(
     "Data\InAgent",
     "Data\Other",
     "DesignDocumentation",
-    "ExportedSolutions"
+    "ExportedSolutions",
+    "DevExchange"
 )
 
 # Create main directory
@@ -309,15 +310,15 @@ if (-not (Test-Path -Path $resourcesDir -PathType Container)) {
     exit 1
 }
 
-# Copy README.txt to root of target directory
+# Copy README.md to root of target directory
 Write-ColorOutput "`nCopying resource files:" -ForegroundColor Green
-$readmeSrc = Join-Path -Path $resourcesDir -ChildPath "README.txt"
+$readmeSrc = Join-Path -Path $resourcesDir -ChildPath "README.md"
 if (Test-Path -Path $readmeSrc) {
-    $readmeDst = Join-Path -Path $targetPath -ChildPath "README.txt"
+    $readmeDst = Join-Path -Path $targetPath -ChildPath "README.md"
     Copy-Item -Path $readmeSrc -Destination $readmeDst -Force
-    Write-ColorOutput "  [OK] Copied: README.txt" -ForegroundColor White
+    Write-ColorOutput "  [OK] Copied: README.md" -ForegroundColor White
 } else {
-    Write-ColorOutput "  [WARNING]: README.txt not found in resources directory" -ForegroundColor Yellow
+    Write-ColorOutput "  [WARNING]: README.md not found in resources directory" -ForegroundColor Yellow
 }
 
 # Copy enhanced_template.xlsm or abridged_enhanced_template.xlsm to TestQueries with renamed filename
@@ -339,21 +340,23 @@ Write-ColorOutput "Target Directory: $targetPath`n" -ForegroundColor White
 
 Write-ColorOutput "Directory Structure:" -ForegroundColor White
 Write-ColorOutput "  $targetDirName/" -ForegroundColor White
-Write-ColorOutput "  |-- README.txt" -ForegroundColor White
+Write-ColorOutput "  |-- README.md" -ForegroundColor White
 Write-ColorOutput "  |-- TestQueries/" -ForegroundColor White
 Write-ColorOutput "  |   +-- Excel_Queries_${SchemaName}.xlsm ($templateTypeDisplay)" -ForegroundColor White
 Write-ColorOutput "  |-- Data/" -ForegroundColor White
 Write-ColorOutput "  |   |-- InAgent/" -ForegroundColor White
 Write-ColorOutput "  |   +-- Other/" -ForegroundColor White
 Write-ColorOutput "  |-- DesignDocumentation/" -ForegroundColor White
-Write-ColorOutput "  +-- ExportedSolutions/" -ForegroundColor White
+Write-ColorOutput "  |-- ExportedSolutions/" -ForegroundColor White
+Write-ColorOutput "  +-- DevExchange/" -ForegroundColor White
 
 Write-ColorOutput "`nNext Steps:" -ForegroundColor Cyan
-Write-ColorOutput "  1. Review README.txt for directory usage guidelines" -ForegroundColor White
+Write-ColorOutput "  1. Review README.md for directory usage guidelines" -ForegroundColor White
 Write-ColorOutput "  2. Fill out Excel_Queries_${SchemaName}.xlsm with test queries" -ForegroundColor White
 Write-ColorOutput "  3. Add knowledge base files to Data/InAgent/" -ForegroundColor White
 Write-ColorOutput "  4. Document agent design in DesignDocumentation/" -ForegroundColor White
-Write-ColorOutput "  5. Export solution from Copilot Studio to ExportedSolutions/`n" -ForegroundColor White
+Write-ColorOutput "  5. Export solution from Copilot Studio to ExportedSolutions/" -ForegroundColor White
+Write-ColorOutput "  6. Use DevExchange/ for sharing files with MSFT (e.g., data entry sheets)`n" -ForegroundColor White
 
 Write-ColorOutput "For more information, see the MCS Agent Archiving Process Documentation." -ForegroundColor White
 Write-ColorOutput "========================================`n" -ForegroundColor Cyan
